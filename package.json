@@ -1,0 +1,13 @@
+{
+  "name": "sreality-tracker",
+  "version": "1.0.0",
+  "description": "Tracks visit counts on a sreality.cz listing and generates a dashboard",
+  "scripts": {
+    "scrape": "node scraper.js",
+    "dashboard": "node generate-dashboard.js",
+    "update": "node scraper.js && node generate-dashboard.js"
+  },
+  "dependencies": {
+    "playwright": "^1.44.0"
+  }
+}

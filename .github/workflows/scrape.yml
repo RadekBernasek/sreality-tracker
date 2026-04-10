@@ -1,0 +1,45 @@
+name: Scrape & Update Dashboard
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # every hour
+  workflow_dispatch:        # allow manual runs
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium --with-deps
+
+      - name: Run scraper
+        run: node scraper.js
+
+      - name: Generate dashboard
+        run: node generate-dashboard.js
+
+      - name: Commit updated data & dashboard
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/visits.csv docs/index.html
+          git diff --cached --quiet || git commit -m "chore: update visits $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          git push
